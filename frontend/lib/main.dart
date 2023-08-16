@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:multiselect/multiselect.dart';
 
 void main() {
   runApp(const MyApp());
@@ -12,9 +13,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Login App',
+      title: 'Better Breakfast',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.green,
       ),
       home: const LoginPage(),
     );
@@ -51,13 +52,11 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     if (data['success']) {
-      String textToSend = _usernameController.text;
       // ignore: use_build_context_synchronously
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Dashboard(
-              text: textToSend,
+            builder: (context) => const Dashboard(
               key: Key("Key"),
             ),
           ));
@@ -119,22 +118,67 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class Dashboard extends StatelessWidget {
-  final String text;
+class Dashboard extends StatefulWidget {
+  const Dashboard({super.key});
 
-  // receive data from the FirstScreen as a parameter
-  const Dashboard({required Key key, required this.text}) : super(key: key);
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  // List<String> fruits = ['Apple', 'Banana', 'Grapes', 'Orange', 'Mango'];
+  var fruits = {
+    'Eggs': 5,
+    'Sandwich': 4,
+    'Bagel': 3,
+    'Donut': 2,
+    'Cereal': 1,
+  };
+
+  List<String> selectedFruits = [];
+  List<int> selectedScores = [];
+  String _message = '';
+
+  Future<void> _sendSelections() async {
+    final response = await http.post(
+      Uri.parse('http://localhost:8080/savetoday'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'scores': selectedScores,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+    setState(() {
+      _message = data['message'];
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Second screen')),
-      body: Center(
-        child: Text(
-          text,
-          style: TextStyle(fontSize: 24),
+        appBar: AppBar(
+          title: const Text('Dashboard'),
         ),
-      ),
-    );
+        body: Center(
+          child: Column(children: <Widget>[
+            DropDownMultiSelect(
+              options: fruits.keys.toList(),
+              selectedValues: selectedFruits,
+              onChanged: (value) {
+                setState(() {
+                  selectedFruits = value;
+                  selectedScores = [];
+                  for (final fruit in selectedFruits) {
+                    selectedScores.add(fruits[fruit]!);
+                  }
+                });
+              },
+            ),
+            const Padding(padding: EdgeInsets.all(16.0)),
+            FloatingActionButton(onPressed: _sendSelections),
+            Text(_message),
+          ]),
+        ));
   }
 }

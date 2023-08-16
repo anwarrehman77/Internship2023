@@ -6,10 +6,12 @@ const mongoose = require('mongoose');
 const app = express();
 const PORT = 8080;
 
+const connectionString = "mongodb+srv://anwarrehman77:sKHlvAIDmx2vMPfo@betterbreakfast.fpnwgkf.mongodb.net/Test";
+
 app.use(cors());
 app.use(bodyParser.json());
 
-mongoose.connect('mongodb+srv://anwarrehman77:sKHlvAIDmx2vMPfo@betterbreakfast.fpnwgkf.mongodb.net/Test', {
+mongoose.connect(connectionString, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -24,7 +26,7 @@ const BreakfastOption = mongoose.model('BreakfastOption', {
     healthinessScore: Number
 })
 
-// User API's
+// Login API's
 app.post('/register', async (req, res) => {
     const { username, password } = req.body;
   
@@ -56,7 +58,17 @@ app.post('/login', async (req, res) => {
   }
 });
 
+app.post('/savetoday', async (req, res) => {
+  const scores = req.body.scores;
+  let score = 0;
 
+  scores.forEach(element => {
+    score += element;
+  });
+  score /= scores.length;
+
+  res.json({ success: true, message: `Saved ${score}`});
+})
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
