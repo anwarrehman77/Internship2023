@@ -4,6 +4,7 @@ const router = express.Router();
 const models = require('../models/models');
 const User = models.User;
 const BreakfastHistory = models.BreakfastHistory;
+const BreakfastOption = models.BreakfastOption;
 
 router.post('/register', async (req, res) => {
     const { username, password } = req.body;
@@ -36,7 +37,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-router.post('/savetoday', async (req, res) => {
+router.post('/savetohist', async (req, res) => {
   const { username, scores, date } = req.body;
 
   try {
@@ -89,6 +90,36 @@ router.post('/getaveragescore', async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: 'An error occurred' });
   }  
+});
+
+router.post('/saveoptions', async (req, res) => {
+  optionName = req.body.name;
+  optionScore = req.body.score;
+  
+  try {
+    const existingOption = await BreakfastOption.findOne({ name: optionName });
+
+    if (existingOption) {
+      res.json({ success: false, message: 'That option already exists!' });
+    } else {
+      if (optionScore > 5) {
+        optionScore = 5;
+      } else if (optionScore <1) {
+        optionScore = 1;
+      }
+
+      const newOption = BreakfastOption({
+        name: optionName,
+        healthinessScore: optionScore,
+      });
+
+      await newOption.save();
+
+      res.json({ success: true, message: `Saved ${optionName} with ${optionScore}` });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'An error occurred' });
+  }
 });
 
 module.exports = router;

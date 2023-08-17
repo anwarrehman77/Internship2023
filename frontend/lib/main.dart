@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -96,11 +97,11 @@ class _LoginPageState extends State<LoginPage> {
           children: <Widget>[
             TextField(
               controller: _usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
+              decoration: const InputDecoration(hintText: 'Username'),
             ),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(hintText: 'Password'),
               obscureText: true,
             ),
             const SizedBox(height: 20),
@@ -138,6 +139,8 @@ class _DashboardState extends State<Dashboard> {
     'Donut': 2,
     'Cereal': 1,
   };
+  final TextEditingController _optionNameController = TextEditingController();
+  final TextEditingController _optionScoreController = TextEditingController();
   List<String> selectedFruits = [];
   List<int> selectedScores = [];
   String _message = '';
@@ -150,7 +153,7 @@ class _DashboardState extends State<Dashboard> {
     final formattedDate = DateFormat('yyyy-MM-dd').format(today);
 
     final response = await http.post(
-      Uri.parse('http://localhost:8080/savetoday'),
+      Uri.parse('http://localhost:8080/savetohist'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'username': widget.name,
@@ -166,7 +169,6 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _getAverageScore() async {
-    debugPrint(widget.name);
     final response = await http.post(
       Uri.parse('http://localhost:8080/getaveragescore'),
       headers: {'Content-Type': 'application/json'},
@@ -179,6 +181,17 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       _scoreMessage = data['message'];
     });
+  }
+
+  Future<void> _sendOption() async {
+    await http.post(
+      Uri.parse('http://localhost:8080/saveoptions'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'name': _optionNameController.text,
+        'score': int.parse(_optionScoreController.text),
+      }),
+    );
   }
 
   @override
@@ -215,6 +228,24 @@ class _DashboardState extends State<Dashboard> {
               label: const Text('See your updated score!'),
             ),
             Text(_scoreMessage),
+            TextField(
+              controller: _optionNameController,
+              decoration: const InputDecoration(
+                  hintText: 'Enter the name of your new Breakfast Option'),
+            ),
+            TextFormField(
+                controller: _optionScoreController,
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.digitsOnly
+                ],
+                decoration: const InputDecoration(
+                  hintText: "Enter its healthiness score (1-5)",
+                )),
+            FloatingActionButton.extended(
+              onPressed: _sendOption,
+              label: const Text('Submit your new breakfast option!'),
+            ),
           ]),
         ));
   }

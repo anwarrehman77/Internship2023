@@ -11,5 +11,11 @@ const BreakfastHistory = mongoose.model('BreakfastHistory', {
     date: String,
 })
 
+const BreakfastOption = mongoose.model('BreakfastOptions', {
+  name: String,
+  healthinessScore: Number,
+})
+
 exports.User = User;
 exports.BreakfastHistory = BreakfastHistory;
+exports.BreakfastOption = BreakfastOption;
