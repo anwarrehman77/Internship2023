@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -36,13 +37,15 @@ class _LoginPageState extends State<LoginPage> {
   String _message = '';
 
   Future<void> _login() async {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
     debugPrint("Login Button");
     final response = await http.post(
       Uri.parse('http://localhost:8080/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'username': _usernameController.text,
-        'password': _passwordController.text,
+        'username': username,
+        'password': password,
       }),
     );
 
@@ -56,8 +59,9 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => const Dashboard(
-              key: Key("Key"),
+            builder: (context) => Dashboard(
+              name: username,
+              key: const Key("Key"),
             ),
           ));
     }
@@ -119,14 +123,14 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+  final String name;
+  const Dashboard({required this.name, super.key});
 
   @override
   State<Dashboard> createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
-  // List<String> fruits = ['Apple', 'Banana', 'Grapes', 'Orange', 'Mango'];
   var fruits = {
     'Eggs': 5,
     'Sandwich': 4,
@@ -134,23 +138,46 @@ class _DashboardState extends State<Dashboard> {
     'Donut': 2,
     'Cereal': 1,
   };
-
   List<String> selectedFruits = [];
   List<int> selectedScores = [];
   String _message = '';
+  String _scoreMessage = '';
+  double score = 0;
 
   Future<void> _sendSelections() async {
+    DateTime today = DateTime.now();
+
+    final formattedDate = DateFormat('yyyy-MM-dd').format(today);
+
     final response = await http.post(
       Uri.parse('http://localhost:8080/savetoday'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
+        'username': widget.name,
         'scores': selectedScores,
+        'date': formattedDate,
       }),
     );
 
     final data = jsonDecode(response.body);
     setState(() {
       _message = data['message'];
+    });
+  }
+
+  Future<void> _getAverageScore() async {
+    debugPrint(widget.name);
+    final response = await http.post(
+      Uri.parse('http://localhost:8080/getaveragescore'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'username': widget.name,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+    setState(() {
+      _scoreMessage = data['message'];
     });
   }
 
@@ -162,6 +189,7 @@ class _DashboardState extends State<Dashboard> {
         ),
         body: Center(
           child: Column(children: <Widget>[
+            Text('Hello ${widget.name}!'),
             DropDownMultiSelect(
               options: fruits.keys.toList(),
               selectedValues: selectedFruits,
@@ -176,8 +204,17 @@ class _DashboardState extends State<Dashboard> {
               },
             ),
             const Padding(padding: EdgeInsets.all(16.0)),
-            FloatingActionButton(onPressed: _sendSelections),
+            FloatingActionButton.extended(
+                label: const Text('Save your selections (ONLY ONCE)'),
+                onPressed: _sendSelections),
+            const SizedBox(height: 10),
             Text(_message),
+            const SizedBox(height: 10),
+            FloatingActionButton.extended(
+              onPressed: _getAverageScore,
+              label: const Text('See your updated score!'),
+            ),
+            Text(_scoreMessage),
           ]),
         ));
   }
