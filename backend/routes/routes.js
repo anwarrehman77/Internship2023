@@ -41,7 +41,7 @@ router.post('/savetohist', async (req, res) => {
   const { username, scores, date } = req.body;
 
   try {
-    const existingSubmission = await BreakfastHistory.findOne({ date: date });
+    const existingSubmission = await BreakfastHistory.findOne({ username: username, date: date });
 
     if (existingSubmission) {
       res.json({ success: false, message: `You already submitted a breakfast today (${date})` });
