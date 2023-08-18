@@ -94,6 +94,7 @@ router.post('/getaveragescore', async (req, res) => {
 
 router.post('/saveoptions', async (req, res) => {
   optionName = req.body.name;
+  optionUser = req.body.user;
   optionScore = req.body.score;
   
   try {
@@ -110,12 +111,31 @@ router.post('/saveoptions', async (req, res) => {
 
       const newOption = BreakfastOption({
         name: optionName,
+        user: optionUser,
         healthinessScore: optionScore,
       });
 
       await newOption.save();
 
       res.json({ success: true, message: `Saved ${optionName} with ${optionScore}` });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'An error occurred' });
+  }
+});
+
+router.post('/getoptions', async (req, res) => {
+  const username = req.body.name;
+
+  try {
+    const options = await BreakfastOption.find({user: username});
+
+    if (options.length === 0) {
+      res.json({ success: false, message: 'No options found' });
+    } else {
+      const optionNames = options.map(option => option.name);
+      
+      res.json({ success: true, options: optionNames, message: `Found ${options.length} options.` });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: 'An error occurred' });

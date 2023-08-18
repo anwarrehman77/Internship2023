@@ -13,6 +13,7 @@ const BreakfastHistory = mongoose.model('BreakfastHistory', {
 
 const BreakfastOption = mongoose.model('BreakfastOptions', {
   name: String,
+  user: String,
   healthinessScore: Number,
 })
 

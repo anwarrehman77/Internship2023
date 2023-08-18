@@ -40,7 +40,6 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
-    debugPrint("Login Button");
     final response = await http.post(
       Uri.parse('http://localhost:8080/login'),
       headers: {'Content-Type': 'application/json'},
@@ -69,7 +68,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _register() async {
-    debugPrint("Register Button");
     final response = await http.post(
       Uri.parse('http://localhost:8080/register'),
       headers: {'Content-Type': 'application/json'},
@@ -143,6 +141,7 @@ class _DashboardState extends State<Dashboard> {
   final TextEditingController _optionScoreController = TextEditingController();
   List<String> selectedFruits = [];
   List<int> selectedScores = [];
+  List<String> breakfastOptions = [];
   String _message = '';
   String _newOptionMessage = '';
   String _scoreMessage = '';
@@ -190,6 +189,7 @@ class _DashboardState extends State<Dashboard> {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'name': _optionNameController.text,
+        'user': widget.name,
         'score': int.parse(_optionScoreController.text),
       }),
     );
@@ -199,6 +199,28 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       _newOptionMessage = data['message'];
     });
+  }
+
+  Future<void> _getOptions() async {
+    final response = await http.post(
+      Uri.parse('http://localhost:8080/getoptions'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'name': widget.name,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (data['success']) {
+      setState(() {
+        breakfastOptions = List<String>.from(data['options']);
+      });
+      breakfastOptions.forEach((element) {
+        debugPrint(element);
+      });
+    } else {}
+    debugPrint(data['message']);
   }
 
   @override
@@ -253,6 +275,8 @@ class _DashboardState extends State<Dashboard> {
                 onPressed: _sendOption,
                 child: const Text('Submit your new breakfast option!')),
             Text(_newOptionMessage),
+            ElevatedButton(
+                onPressed: _getOptions, child: const Text('get options'))
           ]),
         ));
   }
