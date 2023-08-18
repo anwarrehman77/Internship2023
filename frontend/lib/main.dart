@@ -224,15 +224,15 @@ class _DashboardState extends State<Dashboard> {
               },
             ),
             const Padding(padding: EdgeInsets.all(16.0)),
-            FloatingActionButton.extended(
-                label: const Text('Save your selections (ONLY ONCE)'),
-                onPressed: _sendSelections),
+            ElevatedButton(
+                onPressed: _sendSelections,
+                child: const Text('Save your selections (ONCE A DAY)')),
             const SizedBox(height: 10),
             Text(_message),
             const SizedBox(height: 10),
-            FloatingActionButton.extended(
+            ElevatedButton(
               onPressed: _getAverageScore,
-              label: const Text('See your updated score!'),
+              child: const Text('See your updated score!'),
             ),
             Text(_scoreMessage),
             TextField(
@@ -249,10 +249,9 @@ class _DashboardState extends State<Dashboard> {
                 decoration: const InputDecoration(
                   hintText: "Enter its healthiness score (1-5)",
                 )),
-            FloatingActionButton.extended(
-              onPressed: _sendOption,
-              label: const Text('Submit your new breakfast option!'),
-            ),
+            ElevatedButton(
+                onPressed: _sendOption,
+                child: const Text('Submit your new breakfast option!')),
             Text(_newOptionMessage),
           ]),
         ));
