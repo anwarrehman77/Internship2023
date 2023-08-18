@@ -144,6 +144,7 @@ class _DashboardState extends State<Dashboard> {
   List<String> selectedFruits = [];
   List<int> selectedScores = [];
   String _message = '';
+  String _newOptionMessage = '';
   String _scoreMessage = '';
   double score = 0;
 
@@ -184,7 +185,7 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Future<void> _sendOption() async {
-    await http.post(
+    final response = await http.post(
       Uri.parse('http://localhost:8080/saveoptions'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -192,6 +193,12 @@ class _DashboardState extends State<Dashboard> {
         'score': int.parse(_optionScoreController.text),
       }),
     );
+
+    final data = jsonDecode(response.body);
+
+    setState(() {
+      _newOptionMessage = data['message'];
+    });
   }
 
   @override
@@ -246,6 +253,7 @@ class _DashboardState extends State<Dashboard> {
               onPressed: _sendOption,
               label: const Text('Submit your new breakfast option!'),
             ),
+            Text(_newOptionMessage),
           ]),
         ));
   }
