@@ -143,4 +143,18 @@ router.post('/getoptions', async (req, res) => {
   }
 });
 
+router.post('/deleteoption', async (req, res) => {
+  const name = req.body.name;
+
+  try {
+    await BreakfastOption.deleteOne({ name: name }).then(() => {
+      res.json({ success: true, message: `Deleted ${name}` });
+    }).catch((error) => {
+      res.json({ success: false, message: `An error occurred. ${error}` });
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'An error occured' });
+  }
+});
+
 module.exports = router;

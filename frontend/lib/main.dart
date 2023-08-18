@@ -149,6 +149,22 @@ class _DashboardState extends State<Dashboard> {
     _getAverageScore();
   }
 
+  Future<void> _deleteOption() async {
+    final response = await http.post(
+      Uri.parse('http://localhost:8080/deleteoption'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'name': _optionNameController.text,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    setState(() {
+      _newOptionMessage = data['message'];
+    });
+  }
+
   Future<void> _sendSelections() async {
     DateTime today = DateTime.now();
 
@@ -299,6 +315,15 @@ class _DashboardState extends State<Dashboard> {
                 },
                 child: const Text('Submit your new breakfast option!')),
             Text(_newOptionMessage),
+            ElevatedButton(
+                onPressed: () {
+                  _deleteOption();
+                  _getOptions();
+                },
+                style: const ButtonStyle(
+                    backgroundColor:
+                        MaterialStatePropertyAll<Color>(Colors.red)),
+                child: const Text('DELETE OPTION')),
           ]),
         ));
   }
