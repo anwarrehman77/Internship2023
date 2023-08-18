@@ -130,18 +130,13 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
-  var fruits = {
-    'Eggs': 5,
-    'Sandwich': 4,
-    'Bagel': 3,
-    'Donut': 2,
-    'Cereal': 1,
-  };
   final TextEditingController _optionNameController = TextEditingController();
   final TextEditingController _optionScoreController = TextEditingController();
-  List<String> selectedFruits = [];
-  List<int> selectedScores = [];
+  Map<String, int> options = {};
   List<String> breakfastOptions = [];
+  List<String> selectedOptions = [];
+  List<int> breakfastScores = [];
+  List<int> selectedScores = [];
   String _message = '';
   String _newOptionMessage = '';
   String _scoreMessage = '';
@@ -214,10 +209,12 @@ class _DashboardState extends State<Dashboard> {
 
     if (data['success']) {
       setState(() {
-        breakfastOptions = List<String>.from(data['options']);
-      });
-      breakfastOptions.forEach((element) {
-        debugPrint(element);
+        breakfastOptions = List<String>.from(data['names']);
+        breakfastScores = List<int>.from(data['scores']);
+        options = {};
+        for (int i = 0; i < breakfastOptions.length; i++) {
+          options[breakfastOptions[i]] = breakfastScores[i];
+        }
       });
     } else {}
     debugPrint(data['message']);
@@ -233,14 +230,14 @@ class _DashboardState extends State<Dashboard> {
           child: Column(children: <Widget>[
             Text('Hello ${widget.name}!'),
             DropDownMultiSelect(
-              options: fruits.keys.toList(),
-              selectedValues: selectedFruits,
+              options: options.keys.toList(),
+              selectedValues: selectedOptions,
               onChanged: (value) {
                 setState(() {
-                  selectedFruits = value;
+                  selectedOptions = value;
                   selectedScores = [];
-                  for (final fruit in selectedFruits) {
-                    selectedScores.add(fruits[fruit]!);
+                  for (final option in selectedOptions) {
+                    selectedScores.add(options[option]!);
                   }
                 });
               },

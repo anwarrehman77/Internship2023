@@ -134,8 +134,9 @@ router.post('/getoptions', async (req, res) => {
       res.json({ success: false, message: 'No options found' });
     } else {
       const optionNames = options.map(option => option.name);
+      const optionScores = options.map(option => option.healthinessScore);
       
-      res.json({ success: true, options: optionNames, message: `Found ${options.length} options.` });
+      res.json({ success: true, names: optionNames, scores: optionScores, message: `Found ${options.length} options.` });
     }
   } catch (error) {
     res.status(500).json({ success: false, message: 'An error occurred' });
