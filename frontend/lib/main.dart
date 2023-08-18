@@ -142,6 +142,13 @@ class _DashboardState extends State<Dashboard> {
   String _scoreMessage = '';
   double score = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    _getOptions();
+    _getAverageScore();
+  }
+
   Future<void> _sendSelections() async {
     DateTime today = DateTime.now();
 
@@ -173,9 +180,14 @@ class _DashboardState extends State<Dashboard> {
     );
 
     final data = jsonDecode(response.body);
-    setState(() {
-      _scoreMessage = data['message'];
-    });
+
+    if (data['success']) {
+      setState(() {
+        _scoreMessage = data['message'];
+      });
+    } else {
+      _scoreMessage = 'An error occurred :(';
+    }
   }
 
   Future<void> _sendOption() async {
@@ -216,8 +228,7 @@ class _DashboardState extends State<Dashboard> {
           options[breakfastOptions[i]] = breakfastScores[i];
         }
       });
-    } else {}
-    debugPrint(data['message']);
+    }
   }
 
   @override
@@ -228,7 +239,18 @@ class _DashboardState extends State<Dashboard> {
         ),
         body: Center(
           child: Column(children: <Widget>[
-            Text('Hello ${widget.name}!'),
+            Text('Hello ${widget.name}!',
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 40)),
+            const SizedBox(height: 10),
+            Text(_scoreMessage,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 30)),
+            const SizedBox(height: 10),
+            const Text("Submit this morning's breakfast!"),
+            const SizedBox(
+              height: 10,
+            ),
             DropDownMultiSelect(
               options: options.keys.toList(),
               selectedValues: selectedOptions,
@@ -244,16 +266,17 @@ class _DashboardState extends State<Dashboard> {
             ),
             const Padding(padding: EdgeInsets.all(16.0)),
             ElevatedButton(
-                onPressed: _sendSelections,
+                onPressed: () {
+                  _sendSelections();
+                  _getAverageScore();
+                },
                 child: const Text('Save your selections (ONCE A DAY)')),
             const SizedBox(height: 10),
             Text(_message),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _getAverageScore,
-              child: const Text('See your updated score!'),
+            const SizedBox(
+              height: 10,
             ),
-            Text(_scoreMessage),
+            const Text("Breakfast option not on the list?"),
             TextField(
               controller: _optionNameController,
               decoration: const InputDecoration(
@@ -268,12 +291,14 @@ class _DashboardState extends State<Dashboard> {
                 decoration: const InputDecoration(
                   hintText: "Enter its healthiness score (1-5)",
                 )),
+            const SizedBox(height: 10),
             ElevatedButton(
-                onPressed: _sendOption,
+                onPressed: () {
+                  _sendOption();
+                  _getOptions();
+                },
                 child: const Text('Submit your new breakfast option!')),
             Text(_newOptionMessage),
-            ElevatedButton(
-                onPressed: _getOptions, child: const Text('get options'))
           ]),
         ));
   }
