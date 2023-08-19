@@ -282,9 +282,9 @@ class _DashboardState extends State<Dashboard> {
             ),
             const Padding(padding: EdgeInsets.all(16.0)),
             ElevatedButton(
-                onPressed: () {
-                  _sendSelections();
-                  _getAverageScore();
+                onPressed: () async {
+                  await _sendSelections();
+                  await _getAverageScore();
                 },
                 child: const Text('Save your selections (ONCE A DAY)')),
             const SizedBox(height: 10),
@@ -309,16 +309,16 @@ class _DashboardState extends State<Dashboard> {
                 )),
             const SizedBox(height: 10),
             ElevatedButton(
-                onPressed: () {
-                  _sendOption();
-                  _getOptions();
+                onPressed: () async {
+                  await _sendOption();
+                  await _getOptions();
                 },
                 child: const Text('Submit your new breakfast option!')),
             Text(_newOptionMessage),
             ElevatedButton(
-                onPressed: () {
-                  _deleteOption();
-                  _getOptions();
+                onPressed: () async {
+                  await _deleteOption();
+                  await _getOptions();
                 },
                 style: const ButtonStyle(
                     backgroundColor:
