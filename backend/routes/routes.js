@@ -98,7 +98,7 @@ router.post('/saveoptions', async (req, res) => {
   optionScore = req.body.score;
   
   try {
-    const existingOption = await BreakfastOption.findOne({ name: optionName });
+    const existingOption = await BreakfastOption.findOne({ name: optionName, user: optionUser });
 
     if (existingOption) {
       res.json({ success: false, message: 'That option already exists!' });

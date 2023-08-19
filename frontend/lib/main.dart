@@ -93,6 +93,18 @@ class _LoginPageState extends State<LoginPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Image(
+                  image: AssetImage('assets/BetterBreakfast.png'),
+                ),
+                Text('Better Breakfast',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 80)),
+              ],
+            ),
             TextField(
               controller: _usernameController,
               decoration: const InputDecoration(hintText: 'Username'),
